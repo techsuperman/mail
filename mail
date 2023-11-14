@@ -1,0 +1,64 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+# 定义一个监控函数
+def monitor_website(keyword,url):
+    try:
+        response = requests.get(url)
+        # print(response.text)
+        soup = BeautifulSoup(response.content.decode('utf-8'), 'html.parser')
+        # print(soup.get_text())
+        if keyword in soup.get_text():
+            print(url+'访问正常')
+            return True
+        else:
+            return False
+    except:
+        return False
+
+# 发送邮件
+import smtplib
+from email.header import Header
+from email.mime.text import MIMEText
+def send_mail(body):
+    # 邮箱登录信息
+    sender = ''
+    username = ''
+    password = ''
+    # 收件人邮箱，也可以是前面的youruername@163.com，反正只要能收到就行
+    receiver = ''
+    # 邮件内容
+    subject = body
+    #message = '这是一封通过Python发送的test邮件.
+    # 构造邮件对象
+    msg = MIMEText(body, 'plain', 'utf-8')
+    msg['From'] = Header(sender)
+    msg['To'] = Header(receiver)
+    msg['Subject'] = Header(subject)
+    try:
+      # 实例化smtp对象，连接SMTP服务器
+      server = smtplib.SMTP('mail.cgf.cn', 25)
+      server.login(username, password)
+      # 发送邮件，调用sendmail方法
+      server.sendmail(sender, receiver, msg.as_string())
+      print('日志异常,邮件发送成功')
+    except Exception as e:
+      print('业务异常,邮件发送失败:', str(e))
+    finally:
+      # 关闭连接
+      server.quit()
+
+# 循环监控
+keyword2='百度一下'
+url2='https://www.baidu.com'
+while True:
+    if not monitor_website(keyword1,url1):
+        # 发送告警邮件
+        send_mail(url1+'访问失败')
+    if not monitor_website(keyword2,url2):
+        # 发送告警邮件
+        send_mail(url2+'访问失败')
+    time.sleep(60)
+
+
+
